@@ -1,0 +1,15 @@
+node_modules/
+.pi/
+.peicd100/
+AGENTS.md
+AGENTS.override.md
+.env
+.env.*
+config/
+coverage/
+dist/
+build/
+tmp/
+*.log
+*.tgz
+*.tar.gz

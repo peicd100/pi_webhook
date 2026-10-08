@@ -1,0 +1,10 @@
+License selection pending
+=========================
+
+This repository does not yet grant a general open-source license for its own
+code. Package metadata intentionally uses UNLICENSED until the maintainer
+confirms ownership, upstream obligations, and an explicit license choice.
+Public repository visibility and Pi Git installation support do not by
+themselves grant general modification or redistribution rights.
+
+Third-party dependencies retain their respective licenses. See NOTICE.md.
