@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.0.3 — Format-first setup and hyphen commands
+
+- Select Discord / Slack / Generic first; Discord setup only asks for the URL and skips Bearer key.
+- Register `/webhook-status`, `-setup`, `-test`, `-on`, `-off`, `-events`, `-clear`; `/webhook` lists commands. Space-separated subcommands are replaced.
+- Explicit test sends a real POST with a clearly labelled test message and fresh identity; generic test event is `pi.webhook.test`.
+- Add mocked setup/cancellation and HTTPS POST regression tests. Retain immutable core_v1.0.2 and create core_v1.0.3 for reload safety.
+- Keep private store, no automatic retry and Discord everyone behavior unchanged.
+
 ## 1.0.2 — Public Git package
 
 - Package the existing 1.0.2 implementation for Pi Git installation and updates.

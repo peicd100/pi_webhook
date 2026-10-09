@@ -1,3 +1,14 @@
+# Verification — 1.0.3
+
+## Current release local evidence
+
+- Full mocked suite: 27/27 PASS; no provider calls or actual webhook delivery.
+- Package/public checks and disposable local Pi Git install/tag/list/load/remove PASS.
+- Format-first/cancel/key behavior＋hyphen routes＋mocked real HTTPS POST/test identity＋same-process reload PASS.
+- Remote publication/CI evidence is tracked in the workspace release record; do not infer it from local tests.
+
+## Historical release evidence (superseded for current runtime/version)
+
 # Verification scope
 
 The target host is Pi coding-agent 1.1.0, resolved from devDependencies or
