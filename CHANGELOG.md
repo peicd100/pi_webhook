@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.0.5 — Dispatch timestamp suffix
+
+- Append sender-local date/time with seconds and explicit UTC offset to all Generic/Slack/Discord notification text, including tests/errors/cancellations.
+- Capture once after DNS and before POST; use the same instant for legacy generic finished_at. Keep Discord everyone before the final timestamp and preserve dedup identities.
+- Add fixed-clock, timezone/day-rollover/fractional-offset/DST and post-DNS/dedup regression tests. Use immutable core_v1.0.5 for reload safety; no store migration or real webhook required for validation.
+
 ## 1.0.4 — Portable test-store fixture
 
 - Create the explicit POST test fixture through the production Store so POSIX private-file checks are exercised correctly. Do not relax production permissions.

@@ -34,7 +34,7 @@ test('unconfigured completed settlement skips mechanically; status masked, secre
   assert.equal(notices.length,0);
   await extension.commands.get('webhook-status').handler('',ctx);
   assert.equal(JSON.parse(notices.at(-1)).configured,false);
-  assert.equal(JSON.parse(notices.at(-1)).loaded_version,'1.0.4');
+  assert.equal(JSON.parse(notices.at(-1)).loaded_version,'1.0.5');
   await extension.commands.get('webhook').handler('key dummy-do-not-echo',ctx);
   assert.ok(!notices.at(-1).includes('dummy-do-not-echo'));
   await extension.commands.get('webhook-setup').handler('',ctx);

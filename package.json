@@ -1,6 +1,6 @@
 {
   "name": "pi-webhook-notifier",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "private": true,
   "type": "module",
   "description": "Privacy-minimal settled-turn webhook notifications for Pi with durable at-most-once receipts",

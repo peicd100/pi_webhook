@@ -15,15 +15,15 @@ test('same-process reload selects versioned core despite a cached legacy core.mj
   try {
     await mkdir(join(root,'src'),{recursive:true});await mkdir(join(root,'extensions'));
     await writeFile(join(root,'package.json'),JSON.stringify({type:'module'}));
-    const core=await readFile(join(source,'src/core_v1.0.4.mjs'),'utf8');
-    const current="  if(format==='discord') return {content:text.endsWith(' @everyone')?text:`${text} @everyone`,allowed_mentions:{parse:['everyone']}};";
+    const core=await readFile(join(source,'src/core_v1.0.5.mjs'),'utf8');
+    const current="  if(format==='discord') return {content:(base.endsWith(' @everyone')?base:`${base} @everyone`)+suffix,allowed_mentions:{parse:['everyone']}};";
     assert.equal(core.split(current).length,2);
-    const legacy=core.replace("export const VERSION = '1.0.4';","export const VERSION = 'fixture-old';")
-      .replace(current,"  if(format==='discord') return {content:text,allowed_mentions:{parse:[]}};");
+    const legacy=core.replace("export const VERSION = '1.0.5';","export const VERSION = 'fixture-old';")
+      .replace(current,"  if(format==='discord') return {content:base+suffix,allowed_mentions:{parse:[]}};");
     await writeFile(join(root,'src/core.mjs'),legacy);
     await writeFile(join(root,'src/secret-ui.ts'),await readFile(join(source,'src/secret-ui.ts')));
     const index=await readFile(join(source,'extensions/index.ts'),'utf8');
-    await writeFile(join(root,'extensions/index.ts'),index.replace('../src/core_v1.0.4.mjs','../src/core.mjs'));
+    await writeFile(join(root,'extensions/index.ts'),index.replace('../src/core_v1.0.5.mjs','../src/core.mjs'));
     const load=async()=>{
       const r=await loadExtensionsCached([join(root,'extensions/index.ts')],root);
       assert.deepEqual(r.errors,[]);assert.equal(r.extensions.length,1);assert.equal(r.extensions[0].tools.size,0);
@@ -37,15 +37,17 @@ test('same-process reload selects versioned core despite a cached legacy core.mj
     assert.equal((await status(await load())).loaded_version,'fixture-old');
     const cached=await import(pathToFileURL(join(root,'src/core.mjs')).href);
     const e={id:'fixture',sessionId:'fixture',sessionName:'Main',cwd:'/workspace/YouTube',outcome:'completed'};
-    assert.equal(cached.makePayload(e,'discord').content.endsWith(' @everyone'),false);
-    for(const name of ['src/core_v1.0.4.mjs','src/core.mjs','extensions/index.ts'])
+    const at=new Date('2026-10-09T03:04:05Z');
+    assert.equal(cached.makePayload(e,'discord',at).content.includes(' @everyone'),false);
+    for(const name of ['src/core_v1.0.5.mjs','src/core.mjs','extensions/index.ts'])
       await writeFile(join(root,name),await readFile(join(source,name)));
     clearExtensionCache();
-    assert.equal((await status(await load())).loaded_version,'1.0.4');
-    const updated=await import(pathToFileURL(join(root,'src/core_v1.0.4.mjs')).href);
-    assert.equal(updated.VERSION,'1.0.4');
-    assert.equal(updated.makePayload(e,'discord').content,`${cached.makePayload(e,'discord').content} @everyone`);
-    assert.deepEqual(updated.makePayload(e,'discord').allowed_mentions,{parse:['everyone']});
+    assert.equal((await status(await load())).loaded_version,'1.0.5');
+    const updated=await import(pathToFileURL(join(root,'src/core_v1.0.5.mjs')).href);
+    assert.equal(updated.VERSION,'1.0.5');
+    const suffix=` · ${updated.formatSendTime(at)}`;
+    assert.equal(updated.makePayload(e,'discord',at).content,`${cached.makePayload(e,'generic',at).text.slice(0,-suffix.length)} @everyone${suffix}`);
+    assert.deepEqual(updated.makePayload(e,'discord',at).allowed_mentions,{parse:['everyone']});
     assert.equal((await import(pathToFileURL(join(root,'src/core.mjs')).href)).VERSION,'fixture-old');
   } finally {
     clearExtensionCache();

@@ -4,7 +4,7 @@ import { mkdtemp, rm, readFile, stat, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { tmpdir } from 'node:os';
 import { randomUUID } from 'node:crypto';
-import { Store, validateEndpoint, validateConfig, publicAddress, resolveDestination, notificationId, makePayload, deliver, settledSnapshot } from '../src/core.mjs';
+import { Store, validateEndpoint, validateConfig, publicAddress, resolveDestination, notificationId, makePayload, formatSendTime, deliver, settledSnapshot } from '../src/core.mjs';
 const config = {version:1,enabled:true,url:'https://notify.example.net/secret-endpoint?token=dummy',key:'fixture-secret-only',format:'generic',notifyOn:['completed']};
 const resolver = async () => [{address:'8.8.8.8',family:4}];
 const event = () => ({id:notificationId('session',randomUUID(),'completed'),sessionId:'session',sessionName:'test session',cwd:'/private/workspace',outcome:'completed',elapsedMs:25});
@@ -74,29 +74,30 @@ test('payload has only mechanical metadata, privacy-minimal path and safe Discor
   for(const key of ['prompt','answer','key'])assert.equal(key in payload,false);
   assert.deepEqual(Object.keys(makePayload(e,'slack')),['text']);assert.deepEqual(makePayload(e,'discord').allowed_mentions,{parse:['everyone']});
 });
-test('Discord preserves each existing outcome text and appends everyone once; other formats unchanged',()=>{
+test('Discord keeps everyone once before the timestamp; all formats share the same fixed send time',()=>{
+  const at=new Date('2026-10-09T03:04:05.678Z'),suffix=` · ${formatSendTime(at)}`;
   for(const outcome of ['completed','error','aborted']) {
     const e={...event(),outcome};
-    const original=makePayload(e).text;
-    assert.deepEqual(makePayload(e,'discord'),{content:`${original} @everyone`,allowed_mentions:{parse:['everyone']}});
-    assert.deepEqual(makePayload(e,'slack'),{text:original});
+    const original=makePayload(e,'generic',at).text;
+    assert.deepEqual(makePayload(e,'discord',at),{content:`${original.slice(0,-suffix.length)} @everyone${suffix}`,allowed_mentions:{parse:['everyone']}});
+    assert.deepEqual(makePayload(e,'slack',at),{text:original});
     assert.equal(original.includes('@everyone'),false);
   }
   const e={...event(),sessionName:'already @everyone'};
-  const payload=makePayload(e,'discord');
-  assert.equal(payload.content,makePayload(e).text);
+  const payload=makePayload(e,'discord',at);
+  assert.equal(payload.content,makePayload(e,'generic',at).text);
   assert.equal(payload.content.match(/@everyone/g).length,1);
 });
-test('Discord suffix does not change concurrent/reloaded at-most-once dispatch',()=>fixture(async store=>{
-  const e=event();let calls=0;
+test('Discord timestamp does not change concurrent/reloaded at-most-once dispatch',()=>fixture(async store=>{
+  const e=event();let calls=0;const at=new Date('2026-10-09T03:04:05Z'),clock=()=>at;
   const transport=async(_url,_destination,_key,payload,options)=>{
-    calls++;assert.equal(payload.content,`${makePayload(e).text} @everyone`);
+    calls++;assert.equal(payload.content,makePayload(e,'discord',at).content);
     assert.deepEqual(payload.allowed_mentions,{parse:['everyone']});
     assert.equal(options.notificationId,e.id);
     await new Promise(resolve=>setTimeout(resolve,10));return {state:'ACCEPTED',http_status:204};
   };
   const discord={...config,format:'discord'};
-  const results=await Promise.all([deliver(store,discord,e,{resolver,transport}),deliver(new Store(store.root),discord,e,{resolver,transport})]);
+  const results=await Promise.all([deliver(store,discord,e,{resolver,transport,clock}),deliver(new Store(store.root),discord,e,{resolver,transport,clock})]);
   assert.equal(results.filter(r=>r.state==='ACCEPTED').length,1);
   assert.equal(results.filter(r=>r.state==='DUPLICATE_NO_RESEND').length,1);
   assert.equal((await deliver(new Store(store.root),discord,e,{resolver,transport})).state,'DUPLICATE_NO_RESEND');

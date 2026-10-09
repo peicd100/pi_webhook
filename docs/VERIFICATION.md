@@ -1,3 +1,12 @@
+# Verification — 1.0.5
+
+- Local targeted timestamp/core/reload18/18 and full mocked30/30 PASS.
+- Timezone child-process tests cover UTC/Taipei/Kathmandu/New_York DST and day rollover; DNS-to-POST capture and dedup PASS.
+- Package check and disposable local Pi Git tag/branch install/update/load/remove PASS. No actual webhook/provider requests.
+- Remote refs/install/CI verification is recorded with the release task; local PASS alone does not prove it.
+
+## Historical evidence (not current version authority)
+
 # Verification — 1.0.4
 
 ## Current release local evidence
