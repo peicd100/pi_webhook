@@ -5,6 +5,7 @@ import dns from 'node:dns/promises';
 import https from 'node:https';
 import { syncBuiltinESMExports } from 'node:module';
 import { EventEmitter } from 'node:events';
+import { Store } from '../src/core.mjs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -33,7 +34,7 @@ test('unconfigured completed settlement skips mechanically; status masked, secre
   assert.equal(notices.length,0);
   await extension.commands.get('webhook-status').handler('',ctx);
   assert.equal(JSON.parse(notices.at(-1)).configured,false);
-  assert.equal(JSON.parse(notices.at(-1)).loaded_version,'1.0.3');
+  assert.equal(JSON.parse(notices.at(-1)).loaded_version,'1.0.4');
   await extension.commands.get('webhook').handler('key dummy-do-not-echo',ctx);
   assert.ok(!notices.at(-1).includes('dummy-do-not-echo'));
   await extension.commands.get('webhook-setup').handler('',ctx);
@@ -124,8 +125,9 @@ test('hyphen test command dispatches an actual POST through mocked HTTPS, with d
     return request;
   });
   const ctx={mode:'sdk',cwd:root,sessionManager,ui:{notify:()=>{}}};
-  await mkdir(join(root,'config/webhook-notifier'),{recursive:true});
-  await writeFile(configPath(root),JSON.stringify({version:1,enabled:true,url:'https://notify.example.invalid/test',key:'',format:'discord',notifyOn:['error']}));
+  const store=new Store(join(root,'config/webhook-notifier'));
+  await store.writeConfig({version:1,enabled:true,url:'https://notify.example.invalid/test',key:'',format:'discord',notifyOn:['error']});
+  assert.equal((await store.readConfig()).enabled,true,'Fixture must pass the same private-store checks as setup');
   await extension.commands.get('webhook-test').handler('',ctx);
   await extension.commands.get('webhook-test').handler('',ctx);
   assert.equal(sent.length,2);assert.notEqual(sent[0].id,sent[1].id);

@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.0.4 — Portable test-store fixture
+
+- Create the explicit POST test fixture through the production Store so POSIX private-file checks are exercised correctly. Do not relax production permissions.
+- Retain the 1.0.3 features; add immutable core_v1.0.4 for version/reload identity. Published 1.0.2 and 1.0.3 files/tags remain unchanged.
+
 ## 1.0.3 — Format-first setup and hyphen commands
 
 - Select Discord / Slack / Generic first; Discord setup only asks for the URL and skips Bearer key.

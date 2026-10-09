@@ -2,9 +2,9 @@
 
 **Pi 回合結束後的 metadata-only webhook 通知。** 不呼叫模型、不產生摘要、不傳送 prompt、回答、檔案內容或 provider credentials。
 
-版本：`1.0.3`。Package 名稱 `pi-webhook-notifier`，GitHub repo 名稱 `pi_webhook`。
+版本：`1.0.4`。Package 名稱 `pi-webhook-notifier`，GitHub repo 名稱 `pi_webhook`。
 
-> **Discord 注意：目前會附加 `@everyone`，並允許 everyone mention。** 自動通知及手動 `/webhook-test` 都適用；user／role mentions 不允許。這是既有 1.0.3 行為，不是可切換的設定。
+> **Discord 注意：目前會附加 `@everyone`，並允許 everyone mention。** 自動通知及手動 `/webhook-test` 都適用；user／role mentions 不允許。這是既有 1.0.4 行為，不是可切換的設定。
 
 ## 安裝
 
@@ -17,7 +17,7 @@ pi install git:github.com/peicd100/pi_webhook
 需要可重現版本時，改用固定 tag（兩者擇一）：
 
 ```sh
-pi install git:github.com/peicd100/pi_webhook@v1.0.3
+pi install git:github.com/peicd100/pi_webhook@v1.0.4
 ```
 
 只保留一份 webhook package source，不要同時載入原 local copy 與 Git 安裝版本。Extensions 會以 Pi 的 OS 權限執行，安裝前應審閱來源。
@@ -29,7 +29,7 @@ pi install git:github.com/peicd100/pi_webhook@v1.0.3
 /webhook-setup
 ```
 
-`status` 應顯示 `loaded_version: "1.0.3"`。第一次安裝沒有 URL／key，不會發送通知；setup 先選擇格式（Discord → Slack → Generic），再於 masked dialog 輸入自己的 HTTPS URL。Discord 不詢問 Bearer key；Slack／Generic 可選填 key，最後明確確認啟用。**不要把 URL 或 key 放在聊天、slash-command arguments 或 repo。**
+`status` 應顯示 `loaded_version: "1.0.4"`。第一次安裝沒有 URL／key，不會發送通知；setup 先選擇格式（Discord → Slack → Generic），再於 masked dialog 輸入自己的 HTTPS URL。Discord 不詢問 Bearer key；Slack／Generic 可選填 key，最後明確確認啟用。**不要把 URL 或 key 放在聊天、slash-command arguments 或 repo。**
 
 只有在你想要真正發送一則測試通知時，才執行 `/webhook-test`；Discord 會 mention everyone。安裝、unit tests 與安裝 smoke tests 不發送真正 webhook。
 
@@ -111,7 +111,7 @@ pi update git:github.com/peicd100/pi_webhook
 ```sh
 pi remove git:github.com/peicd100/pi_webhook
 # 或固定版本：
-pi remove git:github.com/peicd100/pi_webhook@v1.0.3
+pi remove git:github.com/peicd100/pi_webhook@v1.0.4
 ```
 
 然後 idle `/reload` 或重啟。單純更換 local／Git source 時，**不要執行 `/webhook-off`**，因為新舊版本共用同一設定；只移除舊 source 即可。真正要停用所有 webhook 時才 off。不要用歷史整份 settings backup 覆蓋後續無關設定。

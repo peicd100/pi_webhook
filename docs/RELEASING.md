@@ -18,7 +18,7 @@ Discord mentions everyone.
 ## Runtime versioning
 
 `src/core_v1.0.2.mjs` remains the immutable 1.0.2 implementation. The current
-1.0.3 implementation is `src/core_v1.0.3.mjs`; `src/core.mjs` is its compatibility re-export. The extension imports the versioned implementation
+1.0.4 implementation is `src/core_v1.0.4.mjs`; `src/core.mjs` is its compatibility re-export. The extension imports the versioned implementation
 explicitly because clearing Pi's factory cache does not evict native ESM caches.
 
 For an implementation release, create a new `core_vX.Y.Z.mjs`, update VERSION and
@@ -59,6 +59,6 @@ After refs are public, verify the actual remote without personal Pi changes:
 npm run test:remote
 ```
 
-The script verifies v1.0.3 and the default branch for this release;
+The script verifies v1.0.4 and the default branch for this release;
 update those assertions deliberately for future releases. Record the exact
 commit/tag and checks. CI failures are not waived by successful local tests.

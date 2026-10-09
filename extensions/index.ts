@@ -1,7 +1,7 @@
 import { join } from 'node:path';
 import { randomUUID } from 'node:crypto';
 import { getAgentDir, type ExtensionAPI, type ExtensionContext } from '@earendil-works/pi-coding-agent';
-import { VERSION, Store, validateEndpoint, resolveDestination, deliver, notificationId, settledSnapshot } from '../src/core_v1.0.3.mjs';
+import { VERSION, Store, validateEndpoint, resolveDestination, deliver, notificationId, settledSnapshot } from '../src/core_v1.0.4.mjs';
 import { maskedInput } from '../src/secret-ui.ts';
 
 export default function webhookNotifier(pi: ExtensionAPI) {

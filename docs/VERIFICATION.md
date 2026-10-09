@@ -1,4 +1,4 @@
-# Verification — 1.0.3
+# Verification — 1.0.4
 
 ## Current release local evidence
 
@@ -34,3 +34,7 @@ user's existing protected store. Successful local tests do not claim observed
 live-provider activation or endpoint delivery, or CI success on other OSes.
 
 Run the commands in README.md and record the exact results for each release.
+
+### Historical 1.0.3 CI correction
+
+The published1.0.3 Windows job passed; POSIX jobs rejected an insecure test-only dummy config.1.0.4 creates that fixture using Store.writeConfig; no production security behavior was weakened. Original CI evidence is retained in the workspace release record.
