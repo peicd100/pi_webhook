@@ -5,7 +5,7 @@ import { fileURLToPath } from 'node:url';
 const root = fileURLToPath(new URL('..', import.meta.url));
 const pkg = JSON.parse(readFileSync(join(root, 'package.json')));
 assert.equal(pkg.name, 'pi-webhook-notifier');
-assert.equal(pkg.version, '1.0.5');
+assert.equal(pkg.version, '1.1.0');
 assert.equal(pkg.private, true);
 assert.equal(pkg.license, 'UNLICENSED');
 assert(pkg.keywords.includes('pi-package'));
@@ -17,11 +17,12 @@ for (const name of ['@earendil-works/pi-coding-agent', '@earendil-works/pi-tui']
   assert.equal(pkg.devDependencies[name], '1.1.0');
 }
 assert.equal(Object.keys(pkg.dependencies ?? {}).length, 0, 'Runtime needs only Node and host APIs');
-for (const path of ['extensions/index.ts', 'src/core.mjs', 'src/core_v1.0.5.mjs', 'src/secret-ui.ts', 'README.md', 'LICENSE', 'NOTICE.md', 'CHANGELOG.md', 'docs/RELEASING.md', 'docs/VERIFICATION.md']) assert(existsSync(join(root, path)), 'Missing ' + path);
+for (const path of ['extensions/index.ts', 'src/core.mjs', 'src/core_v1.1.0.mjs', 'src/session-policy_v1.1.0.mjs', 'src/secret-ui.ts', 'README.md', 'LICENSE', 'NOTICE.md', 'CHANGELOG.md', 'docs/RELEASING.md', 'docs/VERIFICATION.md']) assert(existsSync(join(root, path)), 'Missing ' + path);
 const index = readFileSync(join(root, 'extensions/index.ts'), 'utf8');
-assert(index.includes("from '../src/core_v1.0.5.mjs'"));
-assert(readFileSync(join(root, 'src/core.mjs'), 'utf8').includes("export * from './core_v1.0.5.mjs'"));
-assert(readFileSync(join(root, 'src/core_v1.0.5.mjs'), 'utf8').includes("export const VERSION = '1.0.5'"));
+assert(index.includes("from '../src/core_v1.1.0.mjs'"));
+assert(index.includes("from '../src/session-policy_v1.1.0.mjs'"));
+assert(readFileSync(join(root, 'src/core.mjs'), 'utf8').includes("export * from './core_v1.1.0.mjs'"));
+assert(readFileSync(join(root, 'src/core_v1.1.0.mjs'), 'utf8').includes("export const VERSION = '1.1.0'"));
 const forbidden = [
   /[A-Z]:[\\/]Users[\\/]|\/(?:Users|home)\/[^/]+\/(?:\.pi|\.codex)\b/i,
   /https:\/\/(?:discord(?:app)?\.com\/api\/webhooks\/\d+\/|hooks\.slack\.com\/services\/T[A-Z0-9]+\/)/i,

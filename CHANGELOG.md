@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.1.0
+
+- Add `/webhook-default [on|off]`: new dialogs defaultOff; an interactive selector or explicit arguments save separate secret-free preferences even before endpoint setup.
+- Add `/webhook-session [on|off|default]`: durable active-branch custom metadata, excluded from model context; frozen defaults survive resume/reload/tree/fork and ACM context pruning. Existing legacy conversations snapshot their current master intent rather than silently changing behavior.
+- Preserve `/webhook-on/off` as the global master; automatic sends require both master and dialogOn. Explicit manual test bypasses dialogOff only, never masterOff. No inferred LLM switching or historical backfill.
+- Keep metadata-only payloads, HTTPS restrictions, dispatch timestamps, Discord @everyone, durable at-most-once receipts/no retry, and private URL/key storage. Old1.0.5 core is immutable; new versioned runtime prevents cached-ESM upgrade drift.
+
 ## 1.0.5 — Dispatch timestamp suffix
 
 - Append sender-local date/time with seconds and explicit UTC offset to all Generic/Slack/Discord notification text, including tests/errors/cancellations.

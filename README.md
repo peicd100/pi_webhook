@@ -2,7 +2,7 @@
 
 **Pi 回合結束後的 metadata-only webhook 通知。** 不呼叫模型、不產生摘要、不傳送 prompt、回答、檔案內容或 provider credentials。
 
-版本：`1.0.5`。Package 名稱 `pi-webhook-notifier`，GitHub repo 名稱 `pi_webhook`。
+版本：`1.1.0`。Package 名稱 `pi-webhook-notifier`，GitHub repo 名稱 `pi_webhook`。
 
 > **Discord 注意：目前會附加 `@everyone`，並允許 everyone mention。** 自動通知及手動 `/webhook-test` 都適用；user／role mentions 不允許。這是既有 1.0.5 行為，不是可切換的設定。
 
@@ -17,7 +17,7 @@ pi install git:github.com/peicd100/pi_webhook
 需要可重現版本時，改用固定 tag（兩者擇一）：
 
 ```sh
-pi install git:github.com/peicd100/pi_webhook@v1.0.5
+pi install git:github.com/peicd100/pi_webhook@v1.1.0
 ```
 
 只保留一份 webhook package source，不要同時載入原 local copy 與 Git 安裝版本。Extensions 會以 Pi 的 OS 權限執行，安裝前應審閱來源。
@@ -31,6 +31,8 @@ pi install git:github.com/peicd100/pi_webhook@v1.0.5
 
 `status` 應顯示 `loaded_version: "1.0.5"`。第一次安裝沒有 URL／key，不會發送通知；setup 先選擇格式（Discord → Slack → Generic），再於 masked dialog 輸入自己的 HTTPS URL。Discord 不詢問 Bearer key；Slack／Generic 可選填 key，最後明確確認啟用。**不要把 URL 或 key 放在聊天、slash-command arguments 或 repo。**
 
+新對話預設 **Off**。完成setup只啟用全域總開關；要讓此對話自動通知，再執行 `/webhook-session on`。希望以後新對話預設On，可用 `/webhook-default on`，但不會覆蓋已有對話的選擇。
+
 只有在你想要真正發送一則測試通知時，才執行 `/webhook-test`；Discord 會 mention everyone。安裝、unit tests 與安裝 smoke tests 不發送真正 webhook。
 
 ## 指令
@@ -41,13 +43,26 @@ pi install git:github.com/peicd100/pi_webhook@v1.0.5
 | `/webhook-status` | 顯示 loaded version、endpoint hostname 與近期 receipts，不顯示 URL path／query／key |
 | `/webhook-setup` | 先選格式（Discord 第一），再填 masked URL；Discord 跳過 key，其他格式可選填，最後確認啟用 |
 | `/webhook-test` | 已設定且 enabled 時，真正 POST 一則「Pi 測試通知」；每次都有新 identity，Discord 會 @everyone |
-| `/webhook-on`、`/webhook-off` | 啟用／停用共用 user configuration |
+| `/webhook-on`、`/webhook-off` | 啟用／停用全域總開關；不改每個對話的選擇 |
+| `/webhook-default [on|off]` | 顯示並選擇新對話預設，或直接保存；fresh預設Off |
+| `/webhook-session [on|off|default]` | 此對話獨立選擇並持久保存；default明確採用當下全域預設 |
 | `/webhook-events` | 選 completed-only、加 errors、或加 errors／cancellations |
 | `/webhook-clear` | 互動確認後移除 URL／key，保留去重 receipts |
 
 ## 設定與隱私
 
-設定在 package 外：`<agent-dir>/config/webhook-notifier/config.json`，去重 evidence 在同層 `events/`。升版、切換來源與移除 package 不應清除這些資料。使用另一個 agent directory 則是不同的設定／receipt namespace。
+### 預設、對話記憶與總開關
+
+- `/webhook-default` 在TUI顯示目前新對話預設並選On/Off；也可直接 `/webhook-default on` 或 `off`，尚未setup URL也能保存。新安裝沒有preferences時是Off。
+- 每個TUI對話在startup凍結自己的預設snapshot；後來改全域預設不會改已有對話。`/webhook-session on`、`off` 保存明確覆寫；`/webhook-session default` 是明確重新採用**當下**預設，不是讓未來全域改動持續影響此對話。
+- 選擇只含boolean/mode/origin，存為session的非model-context custom entry；不靠LLM猜、不增加提示詞，也不存URL/key。resume/reload恢復active branch；tree遵循選定分支，fork/clone繼承所複製分支的選擇。ACM裁切模型上下文不刪raw entry，因此仍可恢復。
+- 升版遇到已有user/assistant記錄、但沒有session policy的舊對話，第一次TUI載入時凍結當時的master On/Off意圖；不把新Off預設偷偷套到既有工作。只有新對話採新預設。SDK/print/RPC不自動初始化或自動通知；明確指令仍可保存偏好。
+- 自動通知必須同時有endpoint、**master On＋session On＋outcome允許**，且是fresh TUI settlement。`/webhook-on/off` 保留原本全域語意，masterOff不會被sessionOn繞過，也不改對話的保存值。
+- `/webhook-test` 是你明確要求的測試：可越過sessionOff，但不能越過masterOff；仍會實際POST且Discord @everyone。改default/session開關不發測試、不backfill歷史終態、不重送既有identity。
+- preference指令在idle/queue清空時執行；對話切換或取消dialog不保存。總開關Off仍可作停止通知之用；Off/clear/tree/shutdown會取消本runtime owned sends，但已提交request仍可能送達。
+- `/webhook-status` 分別顯示master、new-dialog default、session policy與effective automatic狀態。`--no-session`不能跨process恢復；選擇只在本次session有效。
+
+設定在 package 外：`<agent-dir>/config/webhook-notifier/config.json`，全域新對話預設在同層 `preferences.json`，去重 evidence 在同層 `events/`。Clear只移除URL/key，保留preferences及receipts。升版、切換來源與移除 package 不應清除這些資料。使用另一個 agent directory 則是不同的設定／receipt namespace。
 
 Key 與 URL 是本機**明文**，不是加密儲存。POSIX 目錄／檔案使用 0700／0600；Windows 的 chmod 不等於 NTFS ACL，請確保私人 store 只有必要帳號可讀寫，搬移或備份時保留 ACL。其他 trusted extensions、管理員與同帳號程式仍可能存取資料；masked dialog 不是 OS sandbox。
 
@@ -121,7 +136,7 @@ pi update git:github.com/peicd100/pi_webhook
 ```sh
 pi remove git:github.com/peicd100/pi_webhook
 # 或固定版本：
-pi remove git:github.com/peicd100/pi_webhook@v1.0.5
+pi remove git:github.com/peicd100/pi_webhook@v1.1.0
 ```
 
 然後 idle `/reload` 或重啟。單純更換 local／Git source 時，**不要執行 `/webhook-off`**，因為新舊版本共用同一設定；只移除舊 source 即可。真正要停用所有 webhook 時才 off。不要用歷史整份 settings backup 覆蓋後續無關設定。

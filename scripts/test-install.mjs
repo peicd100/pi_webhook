@@ -15,7 +15,7 @@ const fixture = join(temp, 'source'), agent = join(temp, 'agent'), cwd = join(te
 for (const path of [fixture, agent, cwd]) mkdirSync(path);
 const repoURL = remote ? 'https://github.com/peicd100/pi_webhook.git' : 'https://example.invalid/pi/webhook.git';
 const branchSource = remote ? 'git:github.com/peicd100/pi_webhook' : 'git:' + repoURL;
-const tagSource = branchSource + '@v1.0.5';
+const tagSource = branchSource + '@v1.1.0';
 const installParts = remote ? ['github.com', 'peicd100', 'pi_webhook'] : ['example.invalid', 'pi', 'webhook'];
 const installed = join(agent, 'git', ...installParts);
 const env = { ...process.env, PI_CODING_AGENT_DIR: agent, PI_OFFLINE: '1', PI_TELEMETRY: '0', PI_SKIP_VERSION_CHECK: '1',
@@ -48,7 +48,7 @@ async function loadStatus() {
   assert(!existsSync(join(installed, 'node_modules/@earendil-works/pi-coding-agent')), 'Host must not be bundled');
   assert(!existsSync(join(installed, 'node_modules/@earendil-works/pi-tui')), 'TUI host must not be bundled');
   const pkg = JSON.parse(readFileSync(join(installed, 'package.json')));
-  assert.equal(pkg.version, '1.0.5');
+  assert.equal(pkg.version, '1.1.0');
   const { loadExtensions } = await fromHost('dist/core/extensions/loader.js');
   const previous = process.env.PI_CODING_AGENT_DIR;
   process.env.PI_CODING_AGENT_DIR = agent;
@@ -56,13 +56,13 @@ async function loadStatus() {
     const loaded = await loadExtensions(pkg.pi.extensions.map(p => join(installed, p)), cwd);
     assert.deepEqual(loaded.errors, []);
     assert.equal(loaded.extensions.length, 1);
-    assert.deepEqual([...loaded.extensions[0].commands.keys()], ['webhook','webhook-status','webhook-setup','webhook-test','webhook-on','webhook-off','webhook-events','webhook-clear']);
+    assert.deepEqual([...loaded.extensions[0].commands.keys()], ['webhook','webhook-status','webhook-setup','webhook-test','webhook-on','webhook-off','webhook-events','webhook-clear','webhook-default','webhook-session']);
     assert.equal(loaded.extensions[0].tools.size, 0);
     const notices = [];
     // Read-only status only: never setup, test, enabled writes or session lifecycle.
     await loaded.extensions[0].commands.get('webhook-status').handler('', { mode: 'sdk', ui: { notify: text => notices.push(text) } });
     const status = JSON.parse(notices.at(-1));
-    assert.equal(status.loaded_version, '1.0.5');
+    assert.equal(status.loaded_version, '1.1.0');
     return status;
   } finally {
     if (previous === undefined) delete process.env.PI_CODING_AGENT_DIR;
@@ -76,13 +76,13 @@ try {
     run('git', ['init', '--quiet', '--initial-branch=main'], fixture);
     run('git', ['add', '.'], fixture);
     run('git', ['-c', 'user.name=Webhook install fixture', '-c', 'user.email=fixture@example.invalid', '-c', 'commit.gpgsign=false', 'commit', '--quiet', '-m', 'Disposable install fixture'], fixture);
-    run('git', ['tag', 'v1.0.5'], fixture);
+    run('git', ['tag', 'v1.1.0'], fixture);
   }
   pi(['install', tagSource]);
   assert(declared(tagSource));
   assert(pi(['list']).includes(installParts[0]));
   const tagHead = run('git', ['rev-parse', 'HEAD'], installed).trim();
-  assert.equal(run('git', ['describe', '--tags', '--exact-match'], installed).trim(), 'v1.0.5');
+  assert.equal(run('git', ['describe', '--tags', '--exact-match'], installed).trim(), 'v1.1.0');
   assert.equal((await loadStatus()).configured, false);
   pi(['update', tagSource]);
   assert.equal(run('git', ['rev-parse', 'HEAD'], installed).trim(), tagHead, 'Pinned tag must not move');
@@ -90,11 +90,12 @@ try {
   // Dummy disabled store and receipt are retained across source updates/removal.
   const store = join(agent, 'config/webhook-notifier'), id = 'a'.repeat(64);
   mkdirSync(join(store, 'events', id), { recursive: true, mode: 0o700 });
-  const configPath = join(store, 'config.json'), receiptPath = join(store, 'events', id, 'receipt.json');
+  const configPath = join(store, 'config.json'), receiptPath = join(store, 'events', id, 'receipt.json'), preferencesPath = join(store, 'preferences.json');
+  writeFileSync(preferencesPath, JSON.stringify({ version: 1, defaultEnabled: true }), { mode: 0o600 });
   writeFileSync(configPath, JSON.stringify({ version: 1, enabled: false, url: 'https://notify.example.invalid/fixture', key: 'dummy-test-only', format: 'generic', notifyOn: ['completed'] }), { mode: 0o600 });
   writeFileSync(receiptPath, JSON.stringify({ notification_id: id, state: 'UNKNOWN', started_at: '2020-01-01T00:00:00Z', test: true }), { mode: 0o600 });
-  const configHash = hash(readFileSync(configPath)), receiptHash = hash(readFileSync(receiptPath));
-  const retained = () => { assert.equal(hash(readFileSync(configPath)), configHash); assert.equal(hash(readFileSync(receiptPath)), receiptHash); };
+  const configHash = hash(readFileSync(configPath)), receiptHash = hash(readFileSync(receiptPath)), preferencesHash = hash(readFileSync(preferencesPath));
+  const retained = () => { assert.equal(hash(readFileSync(configPath)), configHash); assert.equal(hash(readFileSync(receiptPath)), receiptHash); assert.equal(hash(readFileSync(preferencesPath)), preferencesHash); };
   assert.equal((await loadStatus()).enabled, false);
   pi(['remove', tagSource]);
   assert(!declared(tagSource)); assert(!existsSync(installed)); retained();
@@ -116,7 +117,7 @@ try {
     assert.equal(afterUpdate, remoteHead, 'Branch update must match public remote HEAD');
   }
   const status = await loadStatus();
-  assert.equal(status.configured, true); assert.equal(status.enabled, false);
+  assert.equal(status.configured, true); assert.equal(status.enabled, false); assert.equal(status.default_enabled, true); assert.equal(status.effective_automatic_enabled, false);
   assert.equal(status.receipts[0].state, 'UNKNOWN'); retained();
   pi(['remove', branchSource]);
   assert(!declared(branchSource)); assert(!existsSync(installed)); retained();

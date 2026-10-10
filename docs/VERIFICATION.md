@@ -1,3 +1,14 @@
+# Verification — Webhook1.1.0 session/default preferences
+
+- Targeted21/21 plus actualSDK1/1; full42/42 PASS. Package and disposable local Pi Git tag/branch install/list/load/update/remove PASS; config/preferences/receipts retained.
+- New-dialog defaultOff, pre-setup default selector/args, global-master/session separation, explicit default snapshot adoption, legacy migration, cancellation/busy, corrupt state fail-closed, no automatic SDK/print/RPC alerts tested.
+- Real SessionManager resume/fork/tree/compaction keeps raw policy and excludes custom entries from model context; actual AgentSession TUI commands call no model, reload does not resend, mock greeting/notification gates PASS.
+- Session switch during awaited config read cannot submit stale terminal; sessionOff aborts pending DNS before POST and retains claim; privacy/payload/time/DNS/TLS/dedup/no-retry regression PASS.
+- No real providers/POSTs, no personal configuration writes or live Docker/reload. Immutable1.0.5 core retained. Empty/--no-session dialogs are limited by Pi persistence; no end-to-end live Discord delivery claimed.
+- Public Git refs/smoke/threeOSCI are release gates recorded against exact published commit.
+
+## Historical evidence (not current execution authority)
+
 # Verification — 1.0.5
 
 - Local targeted timestamp/core/reload18/18 and full mocked30/30 PASS.

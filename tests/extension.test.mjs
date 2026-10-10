@@ -20,7 +20,7 @@ async function fixture(run) {
 const sessionManager={getSessionId:()=> 'fixture-session',getSessionName:()=> 'Fixture',getSessionFile:()=> '/tmp/fixture-session.jsonl',getBranch:()=>[{type:'message',id:'final-entry',message:{role:'assistant',stopReason:'stop',content:[{type:'text',text:'private answer not inspected'}]}}]};
 
 test('public Pi loader exposes only webhook command, no tools/model requests or old agent_end notification',()=>fixture(async extension=>{
-  assert.equal(extension.tools.size,0);assert.deepEqual([...extension.commands.keys()],['webhook','webhook-status','webhook-setup','webhook-test','webhook-on','webhook-off','webhook-events','webhook-clear']);
+  assert.equal(extension.tools.size,0);assert.deepEqual([...extension.commands.keys()],['webhook','webhook-status','webhook-setup','webhook-test','webhook-on','webhook-off','webhook-events','webhook-clear','webhook-default','webhook-session']);
   assert.equal(extension.handlers.has('agent_end'),false);
   assert.equal(extension.handlers.has('agent_settled'),true);
 }));
@@ -34,7 +34,7 @@ test('unconfigured completed settlement skips mechanically; status masked, secre
   assert.equal(notices.length,0);
   await extension.commands.get('webhook-status').handler('',ctx);
   assert.equal(JSON.parse(notices.at(-1)).configured,false);
-  assert.equal(JSON.parse(notices.at(-1)).loaded_version,'1.0.5');
+  assert.equal(JSON.parse(notices.at(-1)).loaded_version,'1.1.0');
   await extension.commands.get('webhook').handler('key dummy-do-not-echo',ctx);
   assert.ok(!notices.at(-1).includes('dummy-do-not-echo'));
   await extension.commands.get('webhook-setup').handler('',ctx);
