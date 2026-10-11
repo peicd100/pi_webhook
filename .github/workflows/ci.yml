@@ -1,4 +1,4 @@
-name: Package checks
+name: 套件驗證
 on:
   push:
   pull_request:

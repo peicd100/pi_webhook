@@ -15,7 +15,7 @@ const fixture = join(temp, 'source'), agent = join(temp, 'agent'), cwd = join(te
 for (const path of [fixture, agent, cwd]) mkdirSync(path);
 const repoURL = remote ? 'https://github.com/peicd100/pi_webhook.git' : 'https://example.invalid/pi/webhook.git';
 const branchSource = remote ? 'git:github.com/peicd100/pi_webhook' : 'git:' + repoURL;
-const tagSource = branchSource + '@v1.1.0';
+const tagSource = branchSource + '@v1.1.1';
 const installParts = remote ? ['github.com', 'peicd100', 'pi_webhook'] : ['example.invalid', 'pi', 'webhook'];
 const installed = join(agent, 'git', ...installParts);
 const env = { ...process.env, PI_CODING_AGENT_DIR: agent, PI_OFFLINE: '1', PI_TELEMETRY: '0', PI_SKIP_VERSION_CHECK: '1',
@@ -48,7 +48,7 @@ async function loadStatus() {
   assert(!existsSync(join(installed, 'node_modules/@earendil-works/pi-coding-agent')), 'Host must not be bundled');
   assert(!existsSync(join(installed, 'node_modules/@earendil-works/pi-tui')), 'TUI host must not be bundled');
   const pkg = JSON.parse(readFileSync(join(installed, 'package.json')));
-  assert.equal(pkg.version, '1.1.0');
+  assert.equal(pkg.version, '1.1.1');
   const { loadExtensions } = await fromHost('dist/core/extensions/loader.js');
   const previous = process.env.PI_CODING_AGENT_DIR;
   process.env.PI_CODING_AGENT_DIR = agent;
@@ -60,9 +60,9 @@ async function loadStatus() {
     assert.equal(loaded.extensions[0].tools.size, 0);
     const notices = [];
     // Read-only status only: never setup, test, enabled writes or session lifecycle.
-    await loaded.extensions[0].commands.get('webhook-status').handler('', { mode: 'sdk', ui: { notify: text => notices.push(text) } });
+    await loaded.extensions[0].commands.get('webhook-status').handler('json', { mode: 'sdk', ui: { notify: text => notices.push(text) } });
     const status = JSON.parse(notices.at(-1));
-    assert.equal(status.loaded_version, '1.1.0');
+    assert.equal(status.loaded_version, '1.1.1');
     return status;
   } finally {
     if (previous === undefined) delete process.env.PI_CODING_AGENT_DIR;
@@ -76,13 +76,13 @@ try {
     run('git', ['init', '--quiet', '--initial-branch=main'], fixture);
     run('git', ['add', '.'], fixture);
     run('git', ['-c', 'user.name=Webhook install fixture', '-c', 'user.email=fixture@example.invalid', '-c', 'commit.gpgsign=false', 'commit', '--quiet', '-m', 'Disposable install fixture'], fixture);
-    run('git', ['tag', 'v1.1.0'], fixture);
+    run('git', ['tag', 'v1.1.1'], fixture);
   }
   pi(['install', tagSource]);
   assert(declared(tagSource));
   assert(pi(['list']).includes(installParts[0]));
   const tagHead = run('git', ['rev-parse', 'HEAD'], installed).trim();
-  assert.equal(run('git', ['describe', '--tags', '--exact-match'], installed).trim(), 'v1.1.0');
+  assert.equal(run('git', ['describe', '--tags', '--exact-match'], installed).trim(), 'v1.1.1');
   assert.equal((await loadStatus()).configured, false);
   pi(['update', tagSource]);
   assert.equal(run('git', ['rev-parse', 'HEAD'], installed).trim(), tagHead, 'Pinned tag must not move');

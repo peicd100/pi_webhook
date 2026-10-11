@@ -1,38 +1,29 @@
-# Changelog
+# 更新紀錄
+
+## 1.1.1
+- 自有指令說明、選單、遮蔽提示、通知結果與文件改繁體中文。
+- 狀態預設中文；/webhook-status json 保留機器欄位。
+- 使用新版本核心避免快取復活；總開關／新對話預設／對話選擇、收據與安全送出語意不改。
 
 ## 1.1.0
+- 新增 /webhook-default on/off 與 /webhook-session on/off/default。
+- 新對話預設關閉，選擇保存為非模型上下文的分支紀錄；舊對話保留意圖。
+- 全域總開關保持；明確測試只越過對話關閉，不越過總開關。
 
-- Add `/webhook-default [on|off]`: new dialogs defaultOff; an interactive selector or explicit arguments save separate secret-free preferences even before endpoint setup.
-- Add `/webhook-session [on|off|default]`: durable active-branch custom metadata, excluded from model context; frozen defaults survive resume/reload/tree/fork and ACM context pruning. Existing legacy conversations snapshot their current master intent rather than silently changing behavior.
-- Preserve `/webhook-on/off` as the global master; automatic sends require both master and dialogOn. Explicit manual test bypasses dialogOff only, never masterOff. No inferred LLM switching or historical backfill.
-- Keep metadata-only payloads, HTTPS restrictions, dispatch timestamps, Discord @everyone, durable at-most-once receipts/no retry, and private URL/key storage. Old1.0.5 core is immutable; new versioned runtime prevents cached-ESM upgrade drift.
+## 1.0.5
+- 所有通知附送出本地時間與 UTC 偏移，DNS 後、POST 前只擷取一次。
+- 時間、時區與防重送回歸；保留 Discord everyone。
 
-## 1.0.5 — Dispatch timestamp suffix
+## 1.0.4
+- 隔離測試透過正式 Store 建立，保留私人權限檢查。
+- 新版本核心保留舊檔與標籤。
 
-- Append sender-local date/time with seconds and explicit UTC offset to all Generic/Slack/Discord notification text, including tests/errors/cancellations.
-- Capture once after DNS and before POST; use the same instant for legacy generic finished_at. Keep Discord everyone before the final timestamp and preserve dedup identities.
-- Add fixed-clock, timezone/day-rollover/fractional-offset/DST and post-DNS/dedup regression tests. Use immutable core_v1.0.5 for reload safety; no store migration or real webhook required for validation.
+## 1.0.3
+- 設定先選 Discord／Slack／一般 JSON；Discord 只填端點。
+- 改 /webhook-xxx 指令；明確測試送真實 POST，取消與模擬 HTTPS 回歸。
 
-## 1.0.4 — Portable test-store fixture
+## 1.0.2
+- 原有實作改為公開 Git 套件，增加可攜 SDK、安全檢查與隔離安裝／更新／移除。
+- 保留必要資訊、防重送、不自動重試與 Discord @everyone；不遷移憑證或收據。
 
-- Create the explicit POST test fixture through the production Store so POSIX private-file checks are exercised correctly. Do not relax production permissions.
-- Retain the 1.0.3 features; add immutable core_v1.0.4 for version/reload identity. Published 1.0.2 and 1.0.3 files/tags remain unchanged.
-
-## 1.0.3 — Format-first setup and hyphen commands
-
-- Select Discord / Slack / Generic first; Discord setup only asks for the URL and skips Bearer key.
-- Register `/webhook-status`, `-setup`, `-test`, `-on`, `-off`, `-events`, `-clear`; `/webhook` lists commands. Space-separated subcommands are replaced.
-- Explicit test sends a real POST with a clearly labelled test message and fresh identity; generic test event is `pi.webhook.test`.
-- Add mocked setup/cancellation and HTTPS POST regression tests. Retain immutable core_v1.0.2 and create core_v1.0.3 for reload safety.
-- Keep private store, no automatic retry and Discord everyone behavior unchanged.
-
-## 1.0.2 — Public Git package
-
-- Package the existing 1.0.2 implementation for Pi Git installation and updates.
-- Add portable SDK resolution, package checks, isolated Git install/update/remove tests and CI.
-- Replace machine-specific installation notes with public setup/security documentation.
-- Preserve the same-process reload correction through `core_v1.0.2.mjs`.
-- Preserve existing metadata-only, durable at-most-once/no-retry behavior and Discord `@everyone`.
-- No runtime behavior changes, credential migration or receipt reset.
-
-License selection remains pending; package metadata is UNLICENSED.
+授權尚未選定，套件為 UNLICENSED。

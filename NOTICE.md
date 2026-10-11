@@ -1,17 +1,5 @@
-# Provenance and third-party notices
+# 來源與第三方說明
 
-This repository packages the maintainer's existing local
-`pi-webhook-notifier` 1.0.2 distribution. Its extension, masked-input helper,
-versioned runtime implementation and compatibility facade were copied without
-behavior changes. Test SDK resolution and distribution tooling are portable.
+原始基礎為維護者的 pi-webhook-notifier 1.0.2 本機版本。當時未附授權／版權聲明，完整上游來源未經獨立確認；這裡不推斷或授予 MIT 等開源授權。
 
-The supplied local distribution did not include a LICENSE or copyright notice.
-Its complete upstream provenance has not been independently established.
-No new MIT or other general open-source license is inferred or granted here.
-The maintainer must confirm rights and any upstream attribution obligations
-before selecting a general open-source license.
-
-Pi host APIs (`@earendil-works/pi-coding-agent`, `@earendil-works/pi-tui`) are
-provided by the user's Pi installation. They are peer dependencies and are not
-bundled as production dependencies. Development dependencies retain their own
-licenses and are not part of the production Git dependency install.
+Pi API 由使用者安裝的 @earendil-works/pi-coding-agent 與相關宿主套件提供，不捆綁為正式依賴。開發用依賴保留自己的授權，不屬於正式 Git 安裝的執行時依賴。維護者仍須核對任何重用程式碼與必要上游聲明，再選定一般開源授權。

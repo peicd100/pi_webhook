@@ -31,7 +31,7 @@ function network(t){const sent=[];t.mock.method(dns,'lookup',async()=>[{address:
 
 test('default selector works before URL setup; cancellation/invalid input/busy are no-write and never POST',t=>fixture(async f=>{
  const sent=network(t);assert.equal(await f.store.readDefault(),false);await f.event('session_start');
- f.ctx.ui.select=async(_title,choices)=>{assert.deepEqual(choices,['on','off']);return 'on';};await f.command('default');assert.equal(await f.store.readDefault(),true);assert.equal(await f.store.readConfig(),null);
+ f.ctx.ui.select=async(_title,choices)=>{assert.deepEqual(choices,['開啟（on）','關閉（off）']);return '開啟（on）';};await f.command('default');assert.equal(await f.store.readDefault(),true);assert.equal(await f.store.readConfig(),null);
  const before=await readFile(f.store.preferencesPath,'utf8');f.ctx.ui.select=async()=>undefined;await f.command('default');assert.equal(await readFile(f.store.preferencesPath,'utf8'),before);
  await f.command('default','not-secret-must-not-echo');assert(!f.notices.at(-1).includes('not-secret'));assert.equal(await readFile(f.store.preferencesPath,'utf8'),before);
  f.ctx.isIdle=()=>false;await f.command('default','off');await f.command('session','on');assert.equal(await readFile(f.store.preferencesPath,'utf8'),before);assert.equal(sessionEnabled(readSessionPolicy(f.manager.getBranch())),false);assert.equal(sent.length,0);

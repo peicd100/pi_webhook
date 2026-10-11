@@ -32,19 +32,19 @@ test('unconfigured completed settlement skips mechanically; status masked, secre
   await extension.handlers.get('agent_before_settle')[0]({outcome:'completed'},ctx);
   await extension.handlers.get('agent_settled')[0]({},ctx);
   assert.equal(notices.length,0);
-  await extension.commands.get('webhook-status').handler('',ctx);
+  await extension.commands.get('webhook-status').handler('json',ctx);
   assert.equal(JSON.parse(notices.at(-1)).configured,false);
-  assert.equal(JSON.parse(notices.at(-1)).loaded_version,'1.1.0');
+  assert.equal(JSON.parse(notices.at(-1)).loaded_version,'1.1.1');
   await extension.commands.get('webhook').handler('key dummy-do-not-echo',ctx);
   assert.ok(!notices.at(-1).includes('dummy-do-not-echo'));
   await extension.commands.get('webhook-setup').handler('',ctx);
-  assert.match(notices.at(-1),/interactive Pi TUI/);
+  assert.match(notices.at(-1),/互動式 TUI/);
   await extension.handlers.get('session_shutdown')[0]({},ctx);
 }));
 test('masked URL dialog draws no secret, cancels without config write or network',()=>fixture(async extension=>{
   let captured;const notices=[];
   const ctx={mode:'tui',cwd:'/private/work',sessionManager,ui:{notify:text=>notices.push(text),
-    select:async(_title,choices)=>{assert.deepEqual(choices,['discord','slack','generic']);return 'discord';},
+    select:async(_title,choices)=>{assert.deepEqual(choices,['Discord','Slack','一般 JSON']);return 'Discord';},
     custom:async factory=>{
       let result;const component=factory({requestRender:()=>{}},{},{},value=>{result=value;});
       component.focused=true;component.handleInput('https://private-secret.invalid/token=dummy');
@@ -68,7 +68,7 @@ function mockSetupNetwork(t) {
 function setupUI(format,values,enable=true) {
   const stages=[],notices=[];
   const ui={notify:text=>notices.push(text),
-    select:async(_title,choices)=>{stages.push('format');assert.deepEqual(choices,['discord','slack','generic']);return format;},
+    select:async(_title,choices)=>{stages.push('format');assert.deepEqual(choices,['Discord','Slack','一般 JSON']);return {discord:"Discord",slack:"Slack",generic:"一般 JSON"}[format];},
     custom:async factory=>{
       let result;const component=factory({requestRender:()=>{}},{},{},value=>{result=value;});
       component.focused=true;const title=component.render(90)[0];
@@ -90,7 +90,7 @@ test('Discord setup selects format first and asks only URL, persists empty key w
   assert.deepEqual(stages,['format','url','confirm']);assert.equal(calls(),1);
   const config=JSON.parse(await readFile(configPath(root),'utf8'));
   assert.equal(config.format,'discord');assert.equal(config.key,'');assert.equal(config.enabled,true);
-  assert.deepEqual(config.notifyOn,['completed']);assert.match(notices.at(-1),/configured and enabled/);
+  assert.deepEqual(config.notifyOn,['completed']);assert.match(notices.at(-1),/已設定並開啟/);
 }));
 for(const format of ['slack','generic'])test(`${format} setup keeps optional Bearer key after format and URL`,t=>fixture(async(extension,root)=>{
   mockSetupNetwork(t);const key=format==='slack'?'':'dummy-fixture-only';
@@ -135,4 +135,11 @@ test('hyphen test command dispatches an actual POST through mocked HTTPS, with d
   await extension.commands.get('webhook-off').handler('',ctx);
   await extension.commands.get('webhook-test').handler('',ctx);
   assert.equal(sent.length,2,'Disabled configuration must never dispatch');
+}));
+
+test('中文狀態為預設，原始 JSON 識別碼可明確取得且不寫設定',()=>fixture(async extension=>{
+  const notices=[],ctx={mode:'sdk',ui:{notify:text=>notices.push(text)}};
+  await extension.commands.get('webhook-status').handler('',ctx);assert.match(notices.at(-1),/全域總開關：關閉/);
+  await extension.commands.get('webhook-status').handler('json',ctx);assert.equal(JSON.parse(notices.at(-1)).loaded_version,'1.1.1');
+  for(const c of extension.commands.values())assert.match(c.description,/[\u3400-\u9fff]/);
 }));

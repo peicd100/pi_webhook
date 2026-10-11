@@ -22,7 +22,7 @@ export async function maskedInput(ctx: ExtensionContext, title: string): Promise
       render(width: number) {
         const masked = '*'.repeat(Math.min(Array.from(input?.getValue() ?? '').length, Math.max(0,width-2)));
         return [truncateToWidth(title,width), `>${masked}${input?.focused ? CURSOR_MARKER : ''}`,
-          truncateToWidth('Enter: confirm · Escape: cancel · input is masked and never sent to the model',width)];
+          truncateToWidth('Enter：確認 · Escape：取消 · 輸入已遮蔽且不會送給模型',width)];
       },
       dispose() { input?.setValue(''); input=undefined; },
     };

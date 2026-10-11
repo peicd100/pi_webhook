@@ -1,10 +1,6 @@
-License selection pending
-=========================
+授權尚未選定
+==============
 
-This repository does not yet grant a general open-source license for its own
-code. Package metadata intentionally uses UNLICENSED until the maintainer
-confirms ownership, upstream obligations, and an explicit license choice.
-Public repository visibility and Pi Git installation support do not by
-themselves grant general modification or redistribution rights.
+本儲存庫尚未授予自身程式碼的一般開源授權。套件刻意標示 UNLICENSED，直到維護者確認權利、上游義務並明確選定授權。公開儲存庫或支援 Git 安裝不代表授予一般修改、再散布或其他開源權利。
 
-Third-party dependencies retain their respective licenses. See NOTICE.md.
+第三方依賴保留各自授權；請參考 NOTICE.md。

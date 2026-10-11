@@ -1,64 +1,13 @@
-# Release workflow
+# 發布流程
 
-## Checks
+目前版本 1.1.1，儲存庫 peicd100/pi_webhook。只發布必要的已驗證檔案；不發布個人設定、金鑰、對話、記憶、依賴目錄、暫存或大型產物。
 
-```sh
-npm ci --ignore-scripts --no-audit --no-fund
-npm run check:package
-npm test
-npm run test:install
-npm pack --dry-run
-```
+1. 核對 worktree，保留使用者既有修改；不要直接把所有變更帶入提交。
+2. 版本、入口、相容轉接、新版本模組與文件一致；不得修改舊公開標籤或舊版本核心。
+3. 執行 npm test、npm run check:package、npm run test:install、npm pack --dry-run。
+4. 檢查 tracked files、套件清單、UTF-8、秘密／私人絕對路徑與授權狀態。
+5. 使用者授權後提交明確檔案，建立新 v1.1.1 標籤，一般快轉 push；禁止 force 或移動既有標籤。
+6. 核對遠端 main／標籤 SHA，執行 npm run test:remote，核對 Linux／Windows／macOS CI。
+7. 實際使用者另行在閒置與佇列清空後更新／重新載入；不得替忙碌的 Docker 對話操作。
 
-Tests use disposable stores and mock DNS/HTTPS. Git install tests use a disposable
-agent directory with no personal configuration or credentials. Do not run
-`/webhook-test` as an automatic release check: it sends a real notification and
-Discord mentions everyone.
-
-## Runtime versioning
-
-`src/core_v1.0.2.mjs` remains the immutable 1.0.2 implementation. The current
-1.0.5 implementation is `src/core_v1.1.0.mjs`; `src/core.mjs` is its compatibility re-export. The extension imports the versioned implementation
-explicitly because clearing Pi's factory cache does not evict native ESM caches.
-
-For an implementation release, create a new `core_vX.Y.Z.mjs`, update VERSION and
-User-Agent in that new file, the extension import, compatibility facade, package
-version, tests, and documentation. Preserve and extend the same-process reload
-regression test. Never edit a released versioned implementation in place.
-
-The public 1.0.2 packaging release preserves the original runtime byte-for-byte.
-No configuration migration or receipt reset is needed.
-
-## Public exposure and license gate
-
-Review all staged/tracked files and the pack list. Exclude node_modules, local
-AGENTS, .pi, .peicd100, configuration, URLs/keys, delivery receipts, large logs,
-fixtures and archives. Preserve upstream attribution if provenance is later
-established. Do not change UNLICENSED to MIT or another general license without
-confirming ownership and explicit maintainer authorization.
-
-## Publish
-
-Only with explicit authorization:
-
-```sh
-git add <reviewed-release-paths>
-git commit -m "Release webhook package"
-git push origin main
-git tag vX.Y.Z
-git push origin vX.Y.Z
-```
-
-Do not force push or move published tags. Verify remote refs before retrying an
-uncertain push. Consumers following the default branch use
-`pi update git:github.com/peicd100/pi_webhook`; pinned tags do not advance.
-
-After refs are public, verify the actual remote without personal Pi changes:
-
-```sh
-npm run test:remote
-```
-
-The script verifies v1.1.0 and the default branch for this release;
-update those assertions deliberately for future releases. Record the exact
-commit/tag and checks. CI failures are not waived by successful local tests.
+固定標籤不跟隨分支更新。private:true 防止意外 npm publish；本流程是 Git 發布，不會建立 npm 套件或自動改授權。

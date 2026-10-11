@@ -1,19 +1,52 @@
 {
   "name": "pi-webhook-notifier",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "private": true,
   "type": "module",
-  "description": "Privacy-minimal settled-turn webhook notifications for Pi with durable at-most-once receipts",
+  "description": "Pi 必要資訊通知，持久防重送與獨立對話開關",
   "license": "UNLICENSED",
-  "keywords": ["pi-package", "pi-extension", "webhook", "notifications"],
-  "repository": { "type": "git", "url": "https://github.com/peicd100/pi_webhook.git" },
+  "keywords": [
+    "pi-package",
+    "pi-extension",
+    "webhook",
+    "notifications"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/peicd100/pi_webhook.git"
+  },
   "homepage": "https://github.com/peicd100/pi_webhook#readme",
-  "bugs": { "url": "https://github.com/peicd100/pi_webhook/issues" },
-  "engines": { "node": ">=22.19.0" },
-  "files": ["extensions/", "src/", "README.md", "CHANGELOG.md", "LICENSE", "NOTICE.md", "docs/"],
-  "pi": { "extensions": ["./extensions/index.ts"], "skills": [], "prompts": [], "themes": [] },
-  "peerDependencies": { "@earendil-works/pi-coding-agent": "*", "@earendil-works/pi-tui": "*" },
-  "devDependencies": { "@earendil-works/pi-coding-agent": "1.1.0", "@earendil-works/pi-tui": "1.1.0" },
+  "bugs": {
+    "url": "https://github.com/peicd100/pi_webhook/issues"
+  },
+  "engines": {
+    "node": ">=22.19.0"
+  },
+  "files": [
+    "extensions/",
+    "src/",
+    "README.md",
+    "CHANGELOG.md",
+    "LICENSE",
+    "NOTICE.md",
+    "docs/"
+  ],
+  "pi": {
+    "extensions": [
+      "./extensions/index.ts"
+    ],
+    "skills": [],
+    "prompts": [],
+    "themes": []
+  },
+  "peerDependencies": {
+    "@earendil-works/pi-coding-agent": "*",
+    "@earendil-works/pi-tui": "*"
+  },
+  "devDependencies": {
+    "@earendil-works/pi-coding-agent": "1.1.0",
+    "@earendil-works/pi-tui": "1.1.0"
+  },
   "scripts": {
     "test": "node --test tests/*.test.mjs",
     "check:package": "node scripts/check-package.mjs",
